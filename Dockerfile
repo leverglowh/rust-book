@@ -75,11 +75,13 @@ RUN npm ci --only=production
 
 COPY server/index.js ./
 
-# Copy built book from builder stage
-COPY --from=book-builder /book/book ./public
+# Copy built book from builder stage with user ownership set to UID/GID 1000
+COPY --from=book-builder --chown=1000:1000 /book/book ./public
 
-# Create data directory for SQLite database
-RUN mkdir -p /app/data
+# Create data directory for SQLite database and ensure permissions for UID/GID 1000
+RUN mkdir -p /app/data && \
+    # ensure the data directory is owned by 1000:1000 in the image
+    chown -R 1000:1000 /app
 
 # Default environment variables (can be overridden)
 ENV PORT=3000 \
@@ -94,5 +96,7 @@ EXPOSE ${PORT}
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD node -e "const port = process.env.PORT || 3000; require('http').get('http://localhost:' + port + '/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Run the full-stack server
+# Run the full-stack server as user with UID 1000
+USER 1000
+
 CMD ["node", "index.js"]
