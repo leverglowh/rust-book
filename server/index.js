@@ -14,7 +14,8 @@ const BOOK_PATH = process.env.BOOK_PATH || path.join(__dirname, 'public');
 
 // SSO Configuration (optional - falls back to anonymous if not configured)
 const SSO_ENABLED = process.env.SSO_ENABLED === 'true';
-const SSO_ISSUER = process.env.SSO_ISSUER; // e.g., https://authentik.company.com/application/o/rust-book/
+const SSO_BASE_URL = process.env.SSO_BASE_URL || null;
+const SSO_ISSUER = SSO_BASE_URL ? `${SSO_BASE_URL}${process.env.SSO_APPLICATION_SLUG}/` : null;
 const SSO_CLIENT_ID = process.env.SSO_CLIENT_ID;
 const SSO_CLIENT_SECRET = process.env.SSO_CLIENT_SECRET;
 const SSO_CALLBACK_URL = process.env.SSO_CALLBACK_URL || 'http://localhost:3000/auth/callback';
@@ -109,9 +110,12 @@ if (!SSO_ENABLED) {
 }
 
 // Passport SSO Configuration
-if (SSO_ENABLED && SSO_ISSUER && SSO_CLIENT_ID && SSO_CLIENT_SECRET) {
+if (SSO_ENABLED && SSO_BASE_URL && SSO_APPLICATION_SLUG && SSO_CLIENT_ID && SSO_CLIENT_SECRET) {
   passport.use('oidc', new OpenIDConnectStrategy({
     issuer: SSO_ISSUER,
+    authorizationURL: `${SSO_BASE_URL}authorize/`,
+    tokenURL: `${SSO_BASE_URL}token/`,
+    userInfoURL: `${SSO_BASE_URL}userinfo/`,
     clientID: SSO_CLIENT_ID,
     clientSecret: SSO_CLIENT_SECRET,
     callbackURL: SSO_CALLBACK_URL,

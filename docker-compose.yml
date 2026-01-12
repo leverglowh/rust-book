@@ -14,7 +14,8 @@ services:
       - NODE_ENV=production
       # SSO Configuration (uncomment and configure to enable)
       # - SSO_ENABLED=true
-      # - SSO_ISSUER=https://your-identity-provider.com/realms/your-realm
+      # - SSO_BASE_URL=https://your-authentik.com/application/o/
+      # - SSO_APPLICATION_SLUG=rust-book
       # - SSO_CLIENT_ID=rust-book-client
       # - SSO_CLIENT_SECRET=your-client-secret
       # - SSO_CALLBACK_URL=https://your-domain.com/auth/callback

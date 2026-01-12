@@ -189,7 +189,8 @@ The book will be available at http://localhost:3000 with server-side storage ena
 
 **SSO Authentication (Optional):**
 - `SSO_ENABLED`: Enable SSO (default: false)
-- `SSO_ISSUER`: OIDC issuer URL
+- `SSO_BASE_URL`: OIDC base URL
+- `SSO_APPLICATION_SLUG`: OAuth2 application slug
 - `SSO_CLIENT_ID`: OAuth2 client ID
 - `SSO_CLIENT_SECRET`: OAuth2 client secret
 - `SSO_CALLBACK_URL`: OAuth2 callback URL
