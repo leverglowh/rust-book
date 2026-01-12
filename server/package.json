@@ -1,0 +1,25 @@
+{
+  "name": "rust-book-server",
+  "version": "1.0.0",
+  "description": "Backend server for storing quiz responses and highlights",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": ["rust", "book", "quiz", "highlights"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "better-sqlite3": "^9.2.2",
+    "express-session": "^1.17.3",
+    "passport": "^0.7.0",
+    "passport-openidconnect": "^0.1.1",
+    "connect-sqlite3": "^0.9.13"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

@@ -1,0 +1,40 @@
+# Rust build artifacts
+target/
+**/*.rs.bk
+*.pdb
+
+# Book build output
+book/
+
+# Node modules
+node_modules/
+js-extensions/node_modules/
+js-extensions/packages/*/node_modules/
+js-extensions/packages/*/dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+
+# Database
+*.db
+*.db-journal
+
+# Note: .git is included for telemetry build (needs commit hash)
+# Only .gitignore is excluded
+.gitignore

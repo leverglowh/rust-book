@@ -147,3 +147,50 @@ you need to add this word to `ci/dictionary.txt` (keep the sorted order for
 consistency).
 
 [`cargo-make`]: https://github.com/sagiegurari/cargo-make
+
+## Self-Hosted
+
+This fork includes a VIBE CODED self-hosted implementation that saves quiz responses, highlights, and reading progress to a server in addiction to browser localStorage.
+
+**Features:**
+- 📝 Server-side storage for quiz responses and highlights
+- 🔐 SSO authentication (Authentik, Keycloak, Auth0, Okta, etc.)
+- 📖 Automatic reading position tracking
+- 🔄 Cross-device progress synchronization
+
+**Quick Start with Docker:**
+```bash
+# Using pre-built image with default settings
+docker run -d -p 3000:3000 -v rust-book-data:/app/data ghcr.io/leverglowh/rust-book:latest
+
+# Or with custom port and paths
+docker run -d \
+  -p 8080:8080 \
+  -e PORT=8080 \
+  -e DB_PATH=/app/data/custom.db \
+  -v rust-book-data:/app/data \
+  ghcr.io/leverglowh/rust-book:latest
+
+# Or build locally
+docker-compose up -d
+```
+
+The book will be available at http://localhost:3000 with server-side storage enabled.
+
+## Configuration
+
+### Environment Variables
+
+**Basic Settings:**
+- `PORT`: Server port (default: 3000)
+- `DB_PATH`: SQLite database path (default: ./data/rust-book.db)
+- `BOOK_PATH`: Path to built book files (default: ./public)
+- `NODE_ENV`: Environment (development/production)
+
+**SSO Authentication (Optional):**
+- `SSO_ENABLED`: Enable SSO (default: false)
+- `SSO_ISSUER`: OIDC issuer URL
+- `SSO_CLIENT_ID`: OAuth2 client ID
+- `SSO_CLIENT_SECRET`: OAuth2 client secret
+- `SSO_CALLBACK_URL`: OAuth2 callback URL
+- `SESSION_SECRET`: Session signing secret (required for SSO)

@@ -19,6 +19,7 @@ additional-js = [
   "js-extensions/packages/telemetry/dist/index.js",
   "js-extensions/packages/consent-form/dist/index.js",
   "js-extensions/packages/feedback/dist/index.js",
+  "js-extensions/packages/reading-tracker/dist/index.js",
 ]
 
 git-repository-url = "https://github.com/cognitive-engineering-lab/rust-book"

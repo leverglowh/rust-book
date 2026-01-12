@@ -6,6 +6,7 @@ import Highlighter from "web-highlighter";
 import HighlightSource from "web-highlighter/dist/model/source";
 
 import FeedbackTooltip from "./tooltip";
+import { serverAPI } from "./server-api";
 import { HIGHLIGHT_STORAGE_KEY, HighlightTelemetryAction } from "./utils";
 
 type FeedbackRendererProps = { highlighter: Highlighter };
@@ -22,6 +23,13 @@ const FeedbackRenderer: React.FC<FeedbackRendererProps> = ({ highlighter }) => {
       let filtered_highlights = stored_highlights.filter(hl => !ids.includes(hl.id));
 
       localStorage.setItem(HIGHLIGHT_STORAGE_KEY, JSON.stringify(filtered_highlights));
+
+      // Remove from server if enabled
+      if (serverAPI.isEnabled()) {
+        ids.forEach(async id => {
+          await serverAPI.deleteHighlight(id);
+        });
+      }
 
       // log removed highlights to telemetry server
       ids.forEach(id => {

@@ -6,6 +6,7 @@ import HighlightSource from "web-highlighter/dist/model/source";
 
 import FeedbackModal from "./modal";
 import FeedbackTooltip from "./tooltip";
+import { serverAPI } from "./server-api";
 import { HIGHLIGHT_STORAGE_KEY, HighlightTelemetryAction, addDOMHash } from "./utils";
 
 // TODO: this is duplicated with mdbook-quiz AND aquascope-embed!
@@ -82,6 +83,21 @@ let SelectionRenderer: React.FC<SelectionRendererProps> = ({ highlighter, stored
       stored_highlights.push(...sources);
 
       localStorage.setItem(HIGHLIGHT_STORAGE_KEY, JSON.stringify(stored_highlights));
+
+      // Save to server if enabled
+      if (serverAPI.isEnabled()) {
+        sources.forEach(async src => {
+          const extra = JSON.parse(src.extra as string);
+          await serverAPI.saveHighlight({
+            id: src.id,
+            page: extra.page,
+            start_meta: src.startMeta,
+            end_meta: src.endMeta,
+            text: src.text,
+            extra: extra
+          });
+        });
+      }
 
       // log new highlights to telemetry server
       sources.forEach(src => {

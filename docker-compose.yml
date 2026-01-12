@@ -1,0 +1,34 @@
+services:
+  # Full-stack Rust Book application (serves both book and API)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rust-book-app
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DB_PATH=/app/data/rust-book.db
+      - BOOK_PATH=/app/public
+      - NODE_ENV=production
+      # SSO Configuration (uncomment and configure to enable)
+      # - SSO_ENABLED=true
+      # - SSO_ISSUER=https://your-identity-provider.com/realms/your-realm
+      # - SSO_CLIENT_ID=rust-book-client
+      # - SSO_CLIENT_SECRET=your-client-secret
+      # - SSO_CALLBACK_URL=https://your-domain.com/auth/callback
+      # - SESSION_SECRET=generate-a-random-32-char-string
+    volumes:
+      - rust-book-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "sh", "-c", "node -e \"const port = process.env.PORT || 3000; require('http').get('http://localhost:' + port + '/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  rust-book-data:
+    driver: local

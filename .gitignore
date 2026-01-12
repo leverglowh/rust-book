@@ -9,3 +9,9 @@ tmp
 /src/aquascope
 .aquascope-cache
 .nova
+
+# Environment variables (contains secrets)
+.env
+
+# Database and data directory
+server/data/

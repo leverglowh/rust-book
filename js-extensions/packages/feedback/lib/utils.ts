@@ -1,6 +1,7 @@
 import md5 from "md5";
 import Highlighter from "web-highlighter";
 import HighlightSource from "web-highlighter/dist/model/source";
+import { serverAPI } from "./server-api";
 
 export const HIGHLIGHT_STORAGE_KEY = "mdbook-quiz:highlights";
 
@@ -35,8 +36,25 @@ export const addDOMHash = (
   return highlight;
 };
 
-/** Load all highlights on current page from local storage */
-export const loadHighlights = (): HighlightSource[] => {
+/** Load all highlights on current page from local storage or server */
+export const loadHighlights = async (): Promise<HighlightSource[]> => {
+  // Try server first if enabled
+  if (serverAPI.isEnabled()) {
+    try {
+      const serverHighlights = await serverAPI.getHighlights(window.location.pathname);
+      return serverHighlights.map(h => ({
+        id: h.id,
+        startMeta: JSON.parse(h.start_meta),
+        endMeta: JSON.parse(h.end_meta),
+        text: h.text,
+        extra: h.extra ? JSON.stringify(JSON.parse(h.extra)) : "{}"
+      }));
+    } catch (error) {
+      console.warn('Failed to load highlights from server, falling back to localStorage:', error);
+    }
+  }
+
+  // Fall back to localStorage
   let stored = localStorage.getItem(HIGHLIGHT_STORAGE_KEY);
   let parsed: HighlightSource[] = JSON.parse(stored || "[]");
 

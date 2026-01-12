@@ -10,18 +10,35 @@ import { highlightIsValid, loadHighlights } from "./utils";
 
 type FeedbackMainProps = { highlighter: Highlighter };
 let FeedbackMain: React.FC<FeedbackMainProps> = ({ highlighter }) => {
-  // initially load all highlights on page from local storage
-  let [stored_highlights, set_stored_highlights] = useState(loadHighlights);
+  // initially load all highlights on page from server or local storage
+  let [stored_highlights, set_stored_highlights] = useState<any[]>([]);
+  let [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const highlights = await loadHighlights();
+      set_stored_highlights(highlights);
+      setIsLoading(false);
+    })();
+  }, []);
 
   // remove highlights that have been invalidated by content updates
   // (in useEffect since highlights must be rendered to compare DOM hashes)
   useEffect(() => {
+    if (isLoading) return;
+
     // find highlights to keep and remove
     let [keep, remove] = _.partition(stored_highlights, h => highlightIsValid(highlighter, h));
 
     remove.forEach(h => highlighter.remove(h.id));
-    set_stored_highlights(keep);
-  }, []);
+    if (remove.length > 0) {
+      set_stored_highlights(keep);
+    }
+  }, [isLoading]);
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <>
@@ -46,3 +63,4 @@ let initFeedback = () => {
 };
 
 initFeedback();
+
