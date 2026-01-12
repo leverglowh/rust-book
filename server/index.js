@@ -11,15 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const DB_PATH = process.env.DB_PATH || './data/rust-book.db';
 const BOOK_PATH = process.env.BOOK_PATH || path.join(__dirname, 'public');
-
-// SSO Configuration (optional - falls back to anonymous if not configured)
-const SSO_ENABLED = process.env.SSO_ENABLED === 'true';
-const SSO_BASE_URL = process.env.SSO_BASE_URL || null;
-const SSO_ISSUER = SSO_BASE_URL ? `${SSO_BASE_URL}${process.env.SSO_APPLICATION_SLUG}/` : null;
-const SSO_CLIENT_ID = process.env.SSO_CLIENT_ID;
-const SSO_CLIENT_SECRET = process.env.SSO_CLIENT_SECRET;
-const SSO_CALLBACK_URL = process.env.SSO_CALLBACK_URL || 'http://localhost:3000/auth/callback';
-const SESSION_SECRET = process.env.SESSION_SECRET || 'rust-book-secret-change-in-production';
+const SSO_ENABLED = false; // TODO
 
 // Middleware
 app.use(cors({
@@ -31,7 +23,7 @@ app.use(express.json({ limit: '10mb' }));
 // Session configuration
 app.use(session({
   store: new SQLiteStore({ db: 'sessions.db', dir: './data' }),
-  secret: SESSION_SECRET,
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -109,61 +101,6 @@ if (!SSO_ENABLED) {
   console.log('Single-user mode: default-user initialized');
 }
 
-// Passport SSO Configuration
-if (SSO_ENABLED && SSO_BASE_URL && SSO_APPLICATION_SLUG && SSO_CLIENT_ID && SSO_CLIENT_SECRET) {
-  passport.use('oidc', new OpenIDConnectStrategy({
-    issuer: SSO_ISSUER,
-    authorizationURL: `${SSO_BASE_URL}authorize/`,
-    tokenURL: `${SSO_BASE_URL}token/`,
-    userInfoURL: `${SSO_BASE_URL}userinfo/`,
-    clientID: SSO_CLIENT_ID,
-    clientSecret: SSO_CLIENT_SECRET,
-    callbackURL: SSO_CALLBACK_URL,
-    scope: ['openid', 'profile', 'email']
-  }, (issuer, profile, done) => {
-    // Store or update user in database
-    const userId = profile.id || profile.sub;
-    const user = {
-      id: userId,
-      email: profile.emails?.[0]?.value || profile.email,
-      name: profile.displayName || profile.name,
-      picture: profile.photos?.[0]?.value || profile.picture,
-      provider: 'oidc'
-    };
-
-    try {
-      const stmt = db.prepare(`
-        INSERT INTO users (id, email, name, picture, provider, last_login)
-        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-        ON CONFLICT(id) DO UPDATE SET
-          email = excluded.email,
-          name = excluded.name,
-          picture = excluded.picture,
-          last_login = CURRENT_TIMESTAMP
-      `);
-      stmt.run(user.id, user.email, user.name, user.picture, user.provider);
-      
-      return done(null, user);
-    } catch (error) {
-      return done(error);
-    }
-  }));
-
-  passport.serializeUser((user, done) => {
-    done(null, user.id);
-  });
-
-  passport.deserializeUser((id, done) => {
-    try {
-      const stmt = db.prepare('SELECT * FROM users WHERE id = ?');
-      const user = stmt.get(id);
-      done(null, user);
-    } catch (error) {
-      done(error);
-    }
-  });
-}
-
 // Helper to get user_id
 const getUserId = (req) => {
   // If authenticated via SSO, use the session user
@@ -191,45 +128,6 @@ const requireAuth = (req, res, next) => {
   }
   next();
 };
-
-// Authentication Routes
-if (SSO_ENABLED) {
-  app.get('/auth/login', passport.authenticate('oidc'));
-
-  app.get('/auth/callback',
-    passport.authenticate('oidc', { failureRedirect: '/auth/login' }),
-    (req, res) => {
-      // Successful authentication, redirect to last position or home
-      const redirectTo = req.session.returnTo || '/';
-      delete req.session.returnTo;
-      res.redirect(redirectTo);
-    }
-  );
-
-  app.get('/auth/logout', (req, res) => {
-    req.logout((err) => {
-      if (err) {
-        return res.status(500).json({ error: 'Logout failed' });
-      }
-      req.session.destroy(() => {
-        res.redirect('/');
-      });
-    });
-  });
-
-  app.get('/api/auth/user', (req, res) => {
-    if (req.user) {
-      res.json({
-        id: req.user.id,
-        name: req.user.name,
-        email: req.user.email,
-        picture: req.user.picture
-      });
-    } else {
-      res.json(null);
-    }
-  });
-}
 
 // API Routes
 

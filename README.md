@@ -154,7 +154,6 @@ This fork includes a VIBE CODED self-hosted implementation that saves quiz respo
 
 **Features:**
 - 📝 Server-side storage for quiz responses and highlights
-- 🔐 SSO authentication (Authentik, Keycloak, Auth0, Okta, etc.)
 - 📖 Automatic reading position tracking
 - 🔄 Cross-device progress synchronization
 
@@ -186,12 +185,4 @@ The book will be available at http://localhost:3000 with server-side storage ena
 - `DB_PATH`: SQLite database path (default: ./data/rust-book.db)
 - `BOOK_PATH`: Path to built book files (default: ./public)
 - `NODE_ENV`: Environment (development/production)
-
-**SSO Authentication (Optional):**
-- `SSO_ENABLED`: Enable SSO (default: false)
-- `SSO_BASE_URL`: OIDC base URL
-- `SSO_APPLICATION_SLUG`: OAuth2 application slug
-- `SSO_CLIENT_ID`: OAuth2 client ID
-- `SSO_CLIENT_SECRET`: OAuth2 client secret
-- `SSO_CALLBACK_URL`: OAuth2 callback URL
-- `SESSION_SECRET`: Session signing secret (required for SSO)
+- `SESSION_SECRET`: Session signing secret

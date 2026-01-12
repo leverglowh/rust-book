@@ -12,13 +12,6 @@ services:
       - DB_PATH=/app/data/rust-book.db
       - BOOK_PATH=/app/public
       - NODE_ENV=production
-      # SSO Configuration (uncomment and configure to enable)
-      # - SSO_ENABLED=true
-      # - SSO_BASE_URL=https://your-authentik.com/application/o/
-      # - SSO_APPLICATION_SLUG=rust-book
-      # - SSO_CLIENT_ID=rust-book-client
-      # - SSO_CLIENT_SECRET=your-client-secret
-      # - SSO_CALLBACK_URL=https://your-domain.com/auth/callback
       # - SESSION_SECRET=generate-a-random-32-char-string
     volumes:
       - rust-book-data:/app/data
