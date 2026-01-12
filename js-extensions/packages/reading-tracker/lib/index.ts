@@ -51,11 +51,11 @@ class ReadingTracker {
       sessionStorage.setItem('reading-tracker-initialized', 'true');
     }
 
-    // Set up tracking
-    this.setupTracking();
-
     // Show user info if logged in
     this.displayUserInfo();
+
+    // Set up tracking
+    this.setupTracking();
   }
 
   private async fetchConfig(): Promise<ServerConfig | null> {
@@ -138,6 +138,7 @@ class ReadingTracker {
     
     if (navigator.sendBeacon) {
       navigator.sendBeacon(`${this.API_URL}/reading-position`, blob);
+      this.showSaveIndicator();
     } else {
       // Fallback to fetch
       fetch(`${this.API_URL}/reading-position`, {
@@ -146,6 +147,9 @@ class ReadingTracker {
         body: data,
         credentials: 'include',
         keepalive: true
+      }).then(() => {
+        // Successfully saved
+        this.showSaveIndicator();
       }).catch(err => console.error('Failed to save position:', err));
     }
   }
@@ -170,8 +174,35 @@ class ReadingTracker {
 
   private displayUserInfo() {
     if (this.singleUserMode) {
+      const style = document.createElement('style');
+      style.textContent = `
+        .rust-book-save-indicator {
+          position: fixed;
+          top: 1rem;
+          right: 1rem;
+          z-index: 1000;
+        }
+        
+        .save-info {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: rgba(76, 175, 80, 0.1);
+          color: #4caf50;
+          padding: 0.5rem 1rem;
+          border-radius: 2rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+        
+        .save-info svg {
+          flex-shrink: 0;
+        }
+      `;
+      document.head.appendChild(style);
       // In single-user mode, show a subtle indicator that data is being saved
-      this.showSaveIndicator();
+      // this.showSaveIndicator();
       return;
     }
     
@@ -195,7 +226,7 @@ class ReadingTracker {
     style.textContent = `
       .rust-book-user-menu {
         position: fixed;
-        top: 1rem;
+        top: 5rem;
         right: 1rem;
         z-index: 1000;
       }
@@ -256,35 +287,10 @@ class ReadingTracker {
       </div>
     `;
 
-    const style = document.createElement('style');
-    style.textContent = `
-      .rust-book-save-indicator {
-        position: fixed;
-        top: 1rem;
-        right: 1rem;
-        z-index: 1000;
-      }
-      
-      .save-info {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: rgba(76, 175, 80, 0.1);
-        color: #4caf50;
-        padding: 0.5rem 1rem;
-        border-radius: 2rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-        border: 1px solid rgba(76, 175, 80, 0.3);
-      }
-      
-      .save-info svg {
-        flex-shrink: 0;
-      }
-    `;
-    document.head.appendChild(style);
-
     document.body.appendChild(indicator);
+    setTimeout(() => {
+      indicator.remove();
+    }, 3000); // Remove after 3 seconds
   }
 
   private showLoginButton() {
