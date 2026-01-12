@@ -112,9 +112,6 @@ if (!SSO_ENABLED) {
 if (SSO_ENABLED && SSO_ISSUER && SSO_CLIENT_ID && SSO_CLIENT_SECRET) {
   passport.use('oidc', new OpenIDConnectStrategy({
     issuer: SSO_ISSUER,
-    authorizationURL: `${SSO_ISSUER}/authorize`,
-    tokenURL: `${SSO_ISSUER}/token`,
-    userInfoURL: `${SSO_ISSUER}/userinfo`,
     clientID: SSO_CLIENT_ID,
     clientSecret: SSO_CLIENT_SECRET,
     callbackURL: SSO_CALLBACK_URL,
