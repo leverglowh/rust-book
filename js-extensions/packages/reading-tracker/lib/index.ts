@@ -178,7 +178,7 @@ class ReadingTracker {
       style.textContent = `
         .rust-book-save-indicator {
           position: fixed;
-          top: 1rem;
+          top: 5rem;
           right: 1rem;
           z-index: 1000;
         }
