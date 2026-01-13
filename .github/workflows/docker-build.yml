@@ -7,6 +7,12 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      no-cache:
+        description: 'Build without cache'
+        required: false
+        default: false
+        type: boolean
 
 env:
   REGISTRY: ghcr.io
@@ -59,8 +65,9 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: ${{ github.event.inputs.no-cache != 'true' && 'type=gha' || '' }}
+          cache-to: ${{ github.event.inputs.no-cache != 'true' && 'type=gha,mode=max' || '' }}
+          no-cache: ${{ github.event.inputs.no-cache == 'true' }}
           build-args: |
             MDBOOK_VERSION=0.4.51
             MDBOOK_QUIZ_VERSION=0.4.0
